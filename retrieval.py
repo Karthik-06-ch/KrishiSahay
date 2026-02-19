@@ -9,16 +9,13 @@ import numpy as np
 import faiss
 
 from config import (
-    BASE_DIR,
-    DATA_DIR,
     EMBEDDING_MODEL,
     FAISS_INDEX,
     META_PKL,
     TOP_K,
-    WATSONX_APIKEY,
-    WATSONX_URL,
-    WATSONX_PROJECT_ID,
-    WATSONX_MODEL,
+    MIN_SIMILARITY,
+    OLLAMA_BASE_URL,
+    OLLAMA_MODEL,
 )
 
 
@@ -34,9 +31,25 @@ def _load_faiss_and_meta():
     return index, meta
 
 
+def _format_simple_for_farmer(answer: str) -> str:
+    """Break answer into short, clear lines so farmers can read easily."""
+    if not answer or not answer.strip():
+        return answer
+    # Split by period or newline, trim, keep non-empty
+    parts = []
+    for part in answer.replace("\n", ". ").split("."):
+        part = part.strip()
+        if part:
+            parts.append(part + "." if not part.endswith(".") else part)
+    if not parts:
+        return answer.strip()
+    return "\n".join(f"• {p}" for p in parts)
+
+
 def get_offline_answer(query: str, top_k: int = TOP_K) -> tuple[list[dict], str]:
     """
-    Embed query, run FAISS search, return list of {query, answer} and formatted offline answer text.
+    Embed query, run FAISS search, return list of {query, answer} and a simple, clean offline answer for farmers.
+    Only shows answers above MIN_SIMILARITY; formats in short bullet points.
     """
     index, meta = _load_faiss_and_meta()
     model = _get_embedder()
@@ -45,8 +58,8 @@ def get_offline_answer(query: str, top_k: int = TOP_K) -> tuple[list[dict], str]
     scores, indices = index.search(q_emb, min(top_k, index.ntotal))
     seen = set()
     results = []
-    for idx in indices[0]:
-        if idx < 0:
+    for score, idx in zip(scores[0], indices[0]):
+        if idx < 0 or score < MIN_SIMILARITY:
             continue
         q = meta["queries"][idx]
         a = meta["answers"][idx]
@@ -54,56 +67,98 @@ def get_offline_answer(query: str, top_k: int = TOP_K) -> tuple[list[dict], str]
         if key in seen:
             continue
         seen.add(key)
-        results.append({"query": q, "answer": a})
-    lines = [f"• {r['answer']}" for r in results]
-    offline_answer = "\n".join(lines) if lines else "No relevant answer found in the KCC database."
+        results.append({"query": q, "answer": a, "score": float(score)})
+    # Sort by score (best first), take up to 3 to keep answer clean
+    results.sort(key=lambda x: x["score"], reverse=True)
+    results = results[:3]
+    if not results:
+        offline_answer = (
+            "हमें इस सवाल का सही जवाब डेटाबेस में नहीं मिला। "
+            "कृपया सवाल थोड़ा अलग शब्दों में पूछें, या अपने क्षेत्र के कृषि अधिकारी से संपर्क करें.\n\n"
+            "We could not find a close match for this question. Try asking in different words or contact your local agriculture office."
+        )
+        return [], offline_answer
+    # One main answer, formatted simply; add more only if we have 2+ and they add value
+    main = results[0]["answer"]
+    offline_answer = _format_simple_for_farmer(main)
+    if len(results) > 1 and results[1]["answer"].strip() != main.strip():
+        other = results[1]["answer"].strip()
+        if other and other[:50] != main[:50]:  # avoid duplicate
+            offline_answer += "\n\nअधिक जानकारी (More):\n" + _format_simple_for_farmer(other)
     return results, offline_answer
 
 
-def get_online_answer(query: str, offline_context: str) -> str:
+def get_available_models(base_url: str = OLLAMA_BASE_URL) -> list[str]:
+    """Fetch list of available models from Ollama."""
+    try:
+        import requests
+        url = f"{base_url.rstrip('/')}/api/tags"
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            models = [m["name"] for m in resp.json().get("models", [])]
+            return models
+    except Exception:
+        pass
+    return []
+
+
+def get_online_answer(query: str, offline_context: str, response_language: str = "English", model_name: str = OLLAMA_MODEL) -> str:
     """
-    Call IBM Watsonx Granite LLM with query + offline context; return generated answer.
+    Call Ollama (local LLM) with query + offline context; return generated answer.
+    response_language: e.g. "English", "Hindi", "Tamil", "Telugu", "Kannada" — answer will be in this language.
+    model_name: specific model to use (e.g. "llama3", "granite4:micro").
     Returns error message if API not configured or request fails.
     """
-    if not WATSONX_APIKEY or not WATSONX_PROJECT_ID:
-        return "Online mode requires WATSONX_APIKEY and WATSONX_PROJECT_ID in .env"
+    if not OLLAMA_BASE_URL:
+        return "Online mode requires OLLAMA_BASE_URL in config.py"
 
-    prompt = f"""You are an agricultural expert helping Indian farmers. Use the following reference answers from the Kisan Call Centre database to give a clear, helpful reply. If the reference does not cover the question, say so and give brief general advice.
+    lang_instruction = f"Respond ONLY in {response_language}. Use simple words so farmers can understand."
 
-Reference answers from database:
+    prompt = f"""You are a friendly agricultural expert helping Indian farmers. Your answer must be SIMPLE and CLEAR so that farmers with little formal education can understand.
+
+RULES:
+- Use very simple words. Avoid technical jargon; if you must use a term (e.g. pesticide name), explain in one short phrase.
+- Write short sentences. One idea per line. Use bullet points (•) or numbers for steps.
+- Base your answer ONLY on the reference below. Do not invent facts. If the reference does not fully cover the question, say so and give only the part that matches.
+- Be correct and actionable: what to do, how much, when, and any caution.
+- {lang_instruction}
+
+Reference from Kisan Call Centre database:
 {offline_context}
 
-Farmer's question: {query}
+Farmer's question (they may have asked in their own language): {query}
 
-Provide a concise, actionable answer in plain language:"""
+Give a short, simple, correct answer that a farmer can follow easily:"""
 
     try:
         import requests
-        url = WATSONX_URL.rstrip("?") if "?" in WATSONX_URL else WATSONX_URL + "?"
-        if "version=" not in url:
-            url = WATSONX_URL if "?" in WATSONX_URL else WATSONX_URL + "?version=2024-05-31"
+        url = f"{OLLAMA_BASE_URL.rstrip('/')}/api/generate"
+        
         payload = {
-            "model_id": WATSONX_MODEL,
-            "input": prompt,
-            "parameters": {
-                "max_new_tokens": 512,
-                "temperature": 0.2,
-                "decoding_method": "greedy",
-            },
-            "project_id": WATSONX_PROJECT_ID,
+            "model": model_name,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.3,
+                "top_p": 0.9,
+            }
         }
-        headers = {
-            "Authorization": f"Bearer {WATSONX_APIKEY}",
-            "Content-Type": "application/json",
-        }
-        resp = requests.post(url, json=payload, headers=headers, timeout=60)
+        
+        # Short timeout for connection, longer for generation
+        resp = requests.post(url, json=payload, timeout=120)
+        
+        if resp.status_code == 404:
+             return f"Error: Model '{model_name}' not found. Run 'ollama pull {model_name}'"
+             
         resp.raise_for_status()
         data = resp.json()
-        # Watsonx text generation response structure
-        if "results" in data and len(data["results"]) > 0:
-            return data["results"][0].get("generated_text", "").strip()
-        if "generated_text" in data:
-            return str(data["generated_text"]).strip()
-        return str(data)
+        
+        if "response" in data:
+            return data["response"].strip()
+            
+        return "Error: No response from Ollama."
+        
+    except requests.exceptions.ConnectionError:
+        return "Error: Could not connect to Ollama. Make sure it is running (e.g. 'ollama serve')."
     except Exception as e:
         return f"Online LLM error: {e}"

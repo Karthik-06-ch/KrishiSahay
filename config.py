@@ -20,8 +20,15 @@ EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 # FAISS search
 TOP_K = 5
+# Minimum similarity (0–1) to show an answer; below this we say "no close match"
+MIN_SIMILARITY = 0.32
 
-# IBM Watsonx (online mode / chatbot)
+# Ollama (Local AI)
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+# Default model; will be overridden by UI selection if possible
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+
+# IBM Watsonx (Legacy / Optional)
 WATSONX_APIKEY = os.getenv("WATSONX_APIKEY")
 WATSONX_URL = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com/ml/v1/text/generation?version=2024-05-31")
 WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
