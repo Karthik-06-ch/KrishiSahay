@@ -1,0 +1,94 @@
+[
+  {
+    "query": "How to control aphids in mustard?",
+    "answer": "For aphids in mustard, spray Imidacloprid 17.8 SL @ 0.5 ml/litre or Dimethoate 30 EC @ 1 ml/litre. Repeat after 10-15 days if needed. Use yellow sticky traps for monitoring."
+  },
+  {
+    "query": "What is the treatment for leaf spot in tomato?",
+    "answer": "For early blight/leaf spot in tomato, spray Mancozeb 75% WP @ 2.5 g/litre or Chlorothalonil @ 2 g/litre. Remove infected leaves. Ensure proper spacing and avoid overhead irrigation."
+  },
+  {
+    "query": "Suggest pesticide for whitefly in cotton.",
+    "answer": "For whitefly in cotton use Acetamiprid 20 SP @ 0.4 g/litre or Thiamethoxam 25 WG @ 0.2 g/litre. Spray early morning. Alternate chemicals to avoid resistance."
+  },
+  {
+    "query": "How to prevent fruit borer in brinjal?",
+    "answer": "For brinjal fruit borer: spray Spinosad 2.5 SC @ 0.4 ml/litre or Emamectin benzoate 5 SG @ 0.25 g/litre at flowering. Remove and destroy infested fruits. Use pheromone traps."
+  },
+  {
+    "query": "What fertilizer is recommended during flowering in maize?",
+    "answer": "During maize flowering apply 40-50 kg N/ha as top dressing. Use urea or CAN. Ensure adequate phosphorus and potassium were applied at sowing. Foliar spray of 2% DAP can help."
+  },
+  {
+    "query": "How to protect paddy from blast disease?",
+    "answer": "For paddy blast: use resistant varieties. Spray Tricyclazole 75 WP @ 0.6 g/litre or Isoprothiolane 40 EC. Apply at tillering and panicle initiation. Avoid excess nitrogen."
+  },
+  {
+    "query": "What is the solution for jassids in cotton?",
+    "answer": "For jassids in cotton spray Imidacloprid 17.8 SL @ 0.3 ml/litre or Acetamiprid 20 SP @ 0.4 g/litre. Early morning spray. Maintain proper plant density."
+  },
+  {
+    "query": "How to apply for PM Kisan Samman Nidhi scheme?",
+    "answer": "PM Kisan: Register on pmkisan.gov.in or visit CSC. Need Aadhaar, bank account, land records. Farmers with up to 2 ha eligible. Rs 6000/year in 3 instalments. Check state agriculture department for camps."
+  },
+  {
+    "query": "What is the dosage of neem oil for aphids?",
+    "answer": "Neem oil for aphids: use 3-5 ml per litre water with 1 ml soap as emulsifier. Spray early morning or evening. Repeat every 7-10 days. Compatible with integrated pest management."
+  },
+  {
+    "query": "How to treat blight in potato crops?",
+    "answer": "For potato late blight spray Mancozeb 75 WP @ 2.5 g/litre or Cymoxanil + Mancozeb. Start when conditions are favourable. Spray at 7-10 day intervals. Remove and destroy severely infected plants."
+  },
+  {
+    "query": "How to control aphids in mustard?",
+    "answer": "Spray Imidacloprid or Dimethoate as per label. Avoid excessive nitrogen. Conserve natural enemies like ladybird beetles."
+  },
+  {
+    "query": "What fertilizer for wheat at flowering?",
+    "answer": "At wheat flowering stage apply 20-25 kg N/ha as top dressing if not done earlier. Foliar spray of 2% urea can improve grain filling."
+  },
+  {
+    "query": "Pesticide for whitefly cotton",
+    "answer": "Use Acetamiprid or Thiamethoxam. Spray undersides of leaves. Rotate insecticides to prevent resistance."
+  },
+  {
+    "query": "PM Kisan registration process",
+    "answer": "Register at pmkisan.gov.in with Aadhaar, bank details and land documents. Visit CSC or agriculture office for assistance."
+  },
+  {
+    "query": "Neem oil concentration for pests",
+    "answer": "Generally 3-5 ml neem oil per litre with soap. Varies by pest and crop. Test on few plants first."
+  },
+  {
+    "query": "Potato blight control measures",
+    "answer": "Use Mancozeb or metalaxyl-based fungicides. Improve drainage. Use certified seed. Crop rotation with non-host crops."
+  },
+  {
+    "query": "Mustard aphid management",
+    "answer": "Imidacloprid 17.8 SL @ 0.5 ml/l or Dimethoate 30 EC @ 1 ml/l. Yellow sticky traps. Avoid late sowing in endemic areas."
+  },
+  {
+    "query": "Tomato leaf spot fungicide",
+    "answer": "Mancozeb 75% WP or Chlorothalonil. Remove infected leaves. Mulch to reduce soil splash."
+  },
+  {
+    "query": "Cotton jassid insecticide",
+    "answer": "Imidacloprid or Acetamiprid as per recommendation. Early sowing and balanced nutrition reduce susceptibility."
+  },
+  {
+    "query": "Maize flowering stage fertilizer",
+    "answer": "Top dress 40-50 kg N/ha. Foliar 2% DAP if deficiency seen. Ensure no water stress at flowering."
+  },
+  {
+    "query": "Paddy blast disease management",
+    "answer": "Tricyclazole or Isoprothiolane. Resistant varieties. Avoid excess N. Proper spacing and drainage."
+  },
+  {
+    "query": "Brinjal fruit borer spray",
+    "answer": "Spinosad or Emamectin benzoate at flower formation. Destroy infested fruits. Pheromone traps for monitoring."
+  },
+  {
+    "query": "Government scheme for farmers PM Kisan",
+    "answer": "PM Kisan Samman Nidhi: Rs 6000/year in 3 equal instalments. Eligibility: farmer families with land up to 2 ha. Register at pmkisan.gov.in."
+  }
+]

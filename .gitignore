@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.py[cod]
+*.pkl
+*.index
+.venv/
+venv/
+.env.local
+*.log
